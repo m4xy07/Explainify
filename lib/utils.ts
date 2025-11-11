@@ -57,3 +57,23 @@ export function normalizeDocContent(value: unknown): string | undefined {
   const fallback = raw.replace(/\s+/g, " ").trim();
   return fallback || undefined;
 }
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function stripFields(
+  text: string | undefined,
+  fields: string[]
+): string | undefined {
+  if (!text) return text;
+  let result = text;
+  for (const field of fields) {
+    const pattern = new RegExp(
+      `${escapeRegex(field)}\\s*:[^\\n]*(\\n|$)`,
+      "gi"
+    );
+    result = result.replace(pattern, "$1");
+  }
+  return result.replace(/\n{3,}/g, "\n\n").trim();
+}

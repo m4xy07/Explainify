@@ -10,7 +10,7 @@ import { LoadingDots } from "@/components/LoadingDots";
 import { RoleSelector } from "@/components/RoleSelector";
 import { Button } from "@/components/ui/button";
 import { mockApiSpec, mockDocResponse } from "@/lib/mock-data";
-import { cn, normalizeDocContent } from "@/lib/utils";
+import { cn, normalizeDocContent, stripFields } from "@/lib/utils";
 import type { AudienceRole, DocGenerationResponse } from "@/types/generation";
 
 const cardAccents = ["#7b5cff", "#ff4d67", "#00a1ff"];
@@ -42,23 +42,24 @@ export default function Home() {
 
   const cards = useMemo(() => {
     const payload = docs ?? mockDocResponse;
+    const hiddenFields = ["title", "audience", "audience_level"];
     return [
       {
         key: "version_1" as const,
         title: "Beginner",
-        content: normalizeDocContent(payload.version_1),
+        content: stripFields(normalizeDocContent(payload.version_1), hiddenFields),
         raw: payload.version_1,
       },
       {
         key: "version_2" as const,
-        title: "Advanced",
-        content: normalizeDocContent(payload.version_2),
+        title: "Developer",
+        content: stripFields(normalizeDocContent(payload.version_2), hiddenFields),
         raw: payload.version_2,
       },
       {
         key: "version_3" as const,
-        title: "Expert",
-        content: normalizeDocContent(payload.version_3),
+        title: activeAudience || "Role Focused",
+        content: stripFields(normalizeDocContent(payload.version_3), hiddenFields),
         raw: payload.version_3,
       },
     ];
@@ -67,10 +68,10 @@ export default function Home() {
   const audioVariants = useMemo(
     () => [
       { key: "version_1" as const, label: "Beginner" },
-      { key: "version_2" as const, label: "Advanced" },
+      { key: "version_2" as const, label: "Developer" },
       {
         key: "version_3" as const,
-        label: "Expert",
+        label: activeAudience || "Role Focused",
       },
     ],
     [activeAudience]
@@ -260,14 +261,14 @@ export default function Home() {
             className="text-center"
           >
             <p className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-white/60">
-              Explainify · Turning complexity into clarity
+            Turning complexity into clarity
             </p>
             <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-              AI-native docs for every API audience
+              Explainify
             </h1>
             <p className="mt-4 text-lg text-white/70 md:text-xl">
-              Paste your schema, pick a persona, and ship documentation + audio
-              in seconds.
+              Paste your schema, pick a persona, and learn like never before in
+              seconds.
             </p>
           </motion.section>
 
@@ -329,19 +330,19 @@ export default function Home() {
               <ul className="mt-4 space-y-4 text-sm text-white/70">
                 <li>① Validate that your JSON is well-formed.</li>
                 <li>② Pick the persona who needs the story.</li>
-                <li>③ Fire the generator — docs + dialogue appear below.</li>
+                <li>③ Personalized docs + dialogue podcast appear below.</li>
                 <li>
                   ④ Spin up an audio summary for commute-friendly playback.
                 </li>
               </ul>
-              <div className="mt-6 rounded-3xl border border-white/10 bg-black/40 p-5 text-sm text-white/60">
+              {/* <div className="mt-6 rounded-3xl border border-white/10 bg-black/40 p-5 text-sm text-white/60">
                 <p className="font-semibold text-white">Static demo mode</p>
                 <p>
                   Without API keys, Explainify shows off using curated mock
                   specs so you can perfect the flow before wiring real
                   providers.
                 </p>
-              </div>
+              </div> */}
             </aside>
           </div>
 

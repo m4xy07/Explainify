@@ -5,10 +5,18 @@ import { promises as fs } from "fs";
 import os from "os";
 import { exec as execCallback } from "child_process";
 import { promisify } from "util";
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 
 import { normalizeDocContent } from "@/lib/utils";
 
 const exec = promisify(execCallback);
+const ffmpegBinary =
+  (ffmpegInstaller && "path" in ffmpegInstaller
+    ? // @ts-expect-error CommonJS default export
+      (ffmpegInstaller.path as string)
+    : undefined) ?? "ffmpeg";
+
+process.env.FFMPEG_PATH = ffmpegBinary;
 
 const requestSchema = z.object({
   dialogue_script: z.string().min(1).optional(),
@@ -25,6 +33,14 @@ const DEFAULT_VOICES = {
   alex: "UgBBYS2sOqTuMpoF3BR0",
   jamie: "g6xIsTj2HwM6VR4iXFCw",
 };
+
+function isFfmpegMissing(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: number; stderr?: string; message?: string };
+  if (err.code === 127) return true;
+  const haystack = `${err.stderr ?? ""} ${err.message ?? ""}`.toLowerCase();
+  return haystack.includes("ffmpeg: not found");
+}
 
 interface DialogueSegment {
   speaker: "Alex" | "Jamie";
@@ -193,9 +209,33 @@ async function concatWithFfmpeg(chunks: string[], output: string) {
     .join("\n");
   await fs.writeFile(listFile, normalized);
   await exec(
-    `ffmpeg -y -f concat -safe 0 -i "${listFile}" -c copy "${output}"`
+    `"${ffmpegBinary}" -y -f concat -safe 0 -i "${listFile}" -c copy "${output}"`
   );
   await fs.rm(tmpDir, { recursive: true, force: true });
+}
+
+async function concatWithoutFfmpeg(chunks: string[], output: string) {
+  const handle = await fs.open(output, "w");
+  try {
+    for (const chunkPath of chunks) {
+      const buffer = await fs.readFile(chunkPath);
+      await handle.write(buffer);
+    }
+  } finally {
+    await handle.close();
+  }
+}
+
+async function concatWithoutFfmpeg(chunks: string[], output: string) {
+  const handle = await fs.open(output, "w");
+  try {
+    for (const chunkPath of chunks) {
+      const data = await fs.readFile(chunkPath);
+      await handle.write(data);
+    }
+  } finally {
+    await handle.close();
+  }
 }
 
 export default async function handler(
@@ -302,7 +342,15 @@ export default async function handler(
       chunkPaths.push(chunkPath);
     }
 
-    await concatWithFfmpeg(chunkPaths, outputPath);
+    try {
+      await concatWithFfmpeg(chunkPaths, outputPath);
+    } catch (concatError) {
+      if (isFfmpegMissing(concatError)) {
+        await concatWithoutFfmpeg(chunkPaths, outputPath);
+      } else {
+        throw concatError;
+      }
+    }
 
     await Promise.all(
       chunkPaths.map((chunkPath) => fs.rm(chunkPath, { force: true }))
@@ -318,10 +366,11 @@ export default async function handler(
       path.join(audioDir, "mock.mp3"),
       outputPath
     );
-    return res.status(500).json({
+    return res.status(200).json({
       audioPath: "/audio/output.mp3",
       usedMock: true,
-      message: "Returned mock audio after synthesis failure.",
+      message:
+        "Returned mock audio after synthesis failure. Check server logs for ElevenLabs/Gemini issues.",
     });
   }
 }
