@@ -12,7 +12,7 @@ import { normalizeDocContent } from "@/lib/utils";
 const exec = promisify(execCallback);
 const ffmpegBinary =
   (ffmpegInstaller && "path" in ffmpegInstaller
-    ? // @ts-expect-error CommonJS default export
+    ?
       (ffmpegInstaller.path as string)
     : undefined) ?? "ffmpeg";
 
@@ -226,17 +226,6 @@ async function concatWithoutFfmpeg(chunks: string[], output: string) {
   }
 }
 
-async function concatWithoutFfmpeg(chunks: string[], output: string) {
-  const handle = await fs.open(output, "w");
-  try {
-    for (const chunkPath of chunks) {
-      const data = await fs.readFile(chunkPath);
-      await handle.write(data);
-    }
-  } finally {
-    await handle.close();
-  }
-}
 
 export default async function handler(
   req: NextApiRequest,
