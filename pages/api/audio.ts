@@ -22,8 +22,8 @@ const geminiEndpoint =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 const DEFAULT_VOICES = {
-  alex: "EXAVITQu4vr4xnSDxMaL",
-  jamie: "pNInz6obpgDQGcFmaJgB",
+  alex: "UgBBYS2sOqTuMpoF3BR0",
+  jamie: "g6xIsTj2HwM6VR4iXFCw",
 };
 
 interface DialogueSegment {

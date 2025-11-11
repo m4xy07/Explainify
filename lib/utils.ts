@@ -49,9 +49,6 @@ export function normalizeDocContent(value: unknown): string | undefined {
     .replace(/\r\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/[{}[\]]/g, "")
-    .replace(/"([^"]+)":/g, "$1:")
-    .replace(/:\s*"([^"]+)"/g, ": $1")
-    .replace(/""/g, '"')
     .replace(/\s{2,}/g, " ");
 
   const trimmed = plain.trim();

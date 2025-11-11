@@ -11,10 +11,7 @@ import { RoleSelector } from "@/components/RoleSelector";
 import { Button } from "@/components/ui/button";
 import { mockApiSpec, mockDocResponse } from "@/lib/mock-data";
 import { cn, normalizeDocContent } from "@/lib/utils";
-import type {
-  AudienceRole,
-  DocGenerationResponse,
-} from "@/types/generation";
+import type { AudienceRole, DocGenerationResponse } from "@/types/generation";
 
 const cardAccents = ["#7b5cff", "#ff4d67", "#00a1ff"];
 
@@ -54,13 +51,13 @@ export default function Home() {
       },
       {
         key: "version_2" as const,
-        title: "Developer",
+        title: "Advanced",
         content: normalizeDocContent(payload.version_2),
         raw: payload.version_2,
       },
       {
         key: "version_3" as const,
-        title: activeAudience || "Role Focused",
+        title: "Expert",
         content: normalizeDocContent(payload.version_3),
         raw: payload.version_3,
       },
@@ -70,10 +67,10 @@ export default function Home() {
   const audioVariants = useMemo(
     () => [
       { key: "version_1" as const, label: "Beginner" },
-      { key: "version_2" as const, label: "Developer" },
+      { key: "version_2" as const, label: "Advanced" },
       {
         key: "version_3" as const,
-        label: activeAudience || "Role Focused",
+        label: "Expert",
       },
     ],
     [activeAudience]
@@ -205,9 +202,7 @@ export default function Home() {
         }),
       });
 
-      const audioPayload = (await response
-        .json()
-        .catch(() => null)) as {
+      const audioPayload = (await response.json().catch(() => null)) as {
         audioPath: string;
         usedMock?: boolean;
         message?: string;
@@ -335,7 +330,9 @@ export default function Home() {
                 <li>① Validate that your JSON is well-formed.</li>
                 <li>② Pick the persona who needs the story.</li>
                 <li>③ Fire the generator — docs + dialogue appear below.</li>
-                <li>④ Spin up an audio summary for commute-friendly playback.</li>
+                <li>
+                  ④ Spin up an audio summary for commute-friendly playback.
+                </li>
               </ul>
               <div className="mt-6 rounded-3xl border border-white/10 bg-black/40 p-5 text-sm text-white/60">
                 <p className="font-semibold text-white">Static demo mode</p>
