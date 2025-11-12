@@ -2,26 +2,7 @@
 
 # Explainify
 
-Explainify is a Raycast-inspired single-page app that ingests an API specification, lets you target a specific audience, and generates three tailored documentation tracks plus a podcast-style audio summary.
-
-## ✨ Feature Highlights
-
-- **Dual JSON inputs** — paste raw JSON or drag/drop a `.json` file with inline validation.
-- **Role-based focus** — Student, Full Stack Developer, Security Researcher, or a custom persona via glowing toggle buttons.
-- **AI generation pipeline** — POST to `/api/generate` (Google Gemini 1.5 Pro) for three doc versions + a dialogue script.
-- **Podcast summaries** — pick any of the three doc tracks and `/api/audio` will ask Gemini to craft an Alex/Jamie script, then render it through ElevenLabs + `ffmpeg`.
-- **Glassmorphic UI** — Tailwind, shadcn/ui primitives, Framer Motion micro-interactions, and Inter typeface for a Basedash/Raycast vibe.
-- **Bonus tooling** — syntax-highlighted editor, “Regenerate” flow, Markdown downloads, Sonner toasts, and mock fallbacks for static demos.
-
-## 🧱 Tech Stack
-
-- Next.js 15 (Pages Router) + TypeScript
-- Tailwind CSS + shadcn/ui components
-- Framer Motion animations
-- Codemirror 6 JSON editor + react-dropzone
-- Gemini + ElevenLabs integrations (with graceful mock mode)
-
-Explainify now relies on the built-in Next.js API routes for Gemini + ElevenLabs. Run `npm run dev` for local tinkering or `npm run build && npm run start` to serve the production build with those routes available.
+Check it out live @ https://explainify.dev
 
 ## ⚙️ Local Development
 
@@ -70,10 +51,5 @@ ELEVENLABS_VOICE_JAMIE=optional_voice_id
 - **Static hosts (Netlify, GitHub Pages, etc.)** — you can still export statically with `next export`, but API routes won’t be bundled. Keep `mock` mode enabled or wire your own backend.
 - **Full-stack hosts (Vercel, Render, etc.)** — run `npm run build && npm run start` (or deploy via Vercel) to keep API routes active and let Explainify proxy Gemini/ElevenLabs directly.
 
-## ✅ Next Steps
-
-1. Drop your API keys into `.env.local`.
-2. Customize the mock spec in `lib/mock-data.ts` to match your product.
-3. Hook the `/api` routes up to your preferred AI providers or swap in serverless functions if you’re targeting a static host.
 
 Turning complexity into clarity is now just one command away. Enjoy!
