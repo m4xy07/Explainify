@@ -1,5 +1,3 @@
-![Explainify banner](public/file.svg)
-
 # Explainify
 
 Check it out live @ https://explainify.dev
