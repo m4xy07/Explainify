@@ -34,7 +34,7 @@ Generate 3 documentation outputs:
 
 Then create a short podcast-style conversation between Alex (the learner) and Jamie (the expert) explaining this API in a simple, conversational tone.
 
-Return all outputs as JSON with these keys:
+Return all outputs as JSON with these keys: THe json should only have content field with the content no other keys
 { "version_1", "version_2", "version_3", "dialogue_script" }
 `;
 
