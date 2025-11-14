@@ -38,7 +38,7 @@ Generate **exactly 4 clean text outputs**:
 1. version_1 → Beginner-friendly documentation  
 2. version_2 → Advanced-level documentation  
 3. version_3 → Expert-specific documentation  
-4. dialogue_script → A short podcast-style conversation between Alex (learner) and Jamie (expert) explaining the API in a simple, conversational tone  
+4. dialogue_script → A short podcast-style conversation between Monika (learner) and Vikram (expert) explaining the API in a simple, conversational tone  
 
 Return ONLY a JSON object in this format:
 

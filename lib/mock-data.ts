@@ -45,5 +45,5 @@ export const mockDocResponse: DocGenerationResponse = {
   version_3:
     "### Security Researcher focus\n- **Surface area:** Only two public endpoints; both expect HTTPS + JWT.\n- **Input validation:** `title` truncated to 140 chars server-side. `specUrl` validated against RFC 3986 but not fetched automatically.\n- **Threat model tips:** Create a dedicated service account token and rotate monthly. Use `scope=tasks.write` when POSTing and keep GET tokens read-only. Webhook signatures rely on `Explainify-Signature` (HMAC-SHA256).",
   dialogue_script:
-    "Alex: I'm trying to grasp what the Explainify Tasks API actually does.\nJamie: Think of it as an intake form for API briefs—POST creates a work item and GET lets you check everything.\nAlex: So it's minimal on purpose?\nJamie: Exactly. Only the metadata Explainify needs, plus JWT + rate limits to keep it safe.\nAlex: Got it, thanks!",
+    "Monika: I'm trying to grasp what the Explainify Tasks API actually does.\nVikram: Think of it as an intake form for API briefs—POST creates a work item and GET lets you check everything.\nMonika: So it's minimal on purpose?\nVikram: Exactly. Only the metadata Explainify needs, plus JWT + rate limits to keep it safe.\nMonika: Got it, thanks!",
 };

@@ -30,8 +30,8 @@ const geminiEndpoint =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 const DEFAULT_VOICES = {
-  alex: "UgBBYS2sOqTuMpoF3BR0",
-  jamie: "g6xIsTj2HwM6VR4iXFCw",
+  monika: "ZUrEGyu8GFMwnHbvLhv2",
+  vikram: "8l89UrPQsmYVJoJRfnAt",
 };
 
 function isFfmpegMissing(error: unknown) {
@@ -43,13 +43,13 @@ function isFfmpegMissing(error: unknown) {
 }
 
 interface DialogueSegment {
-  speaker: "Alex" | "Jamie";
+  speaker: "Monika" | "Vikram";
   text: string;
 }
 
 function parseDialogue(script: string): DialogueSegment[] {
   const lines = script.split("\n").map((line) => line.trim());
-  let fallbackSpeaker: "Alex" | "Jamie" = "Alex";
+  let fallbackSpeaker: "Monika" | "Vikram" = "Monika";
 
   return lines
     .filter(Boolean)
@@ -57,15 +57,15 @@ function parseDialogue(script: string): DialogueSegment[] {
       const [rawSpeaker, ...rest] = line.split(":");
       const hasExplicitSpeaker = rest.length > 0;
       const text = hasExplicitSpeaker ? rest.join(":").trim() : line;
-      let speaker: "Alex" | "Jamie" = fallbackSpeaker;
+      let speaker: "Monika" | "Vikram" = fallbackSpeaker;
       if (hasExplicitSpeaker) {
         const candidate = rawSpeaker.trim().toLowerCase();
-        if (candidate.includes("jamie")) speaker = "Jamie";
-        else speaker = "Alex";
+        if (candidate.includes("Vikram")) speaker = "Vikram";
+        else speaker = "Monika";
       } else {
         speaker = fallbackSpeaker;
       }
-      fallbackSpeaker = speaker === "Alex" ? "Jamie" : "Alex";
+      fallbackSpeaker = speaker === "Monika" ? "Vikram" : "Monika";
       return {
         speaker,
         text,
@@ -93,16 +93,16 @@ function scriptFromDoc(
   if (sentences.length === 0) return undefined;
 
   const friendlyLabel = label ?? "this documentation";
-  const header = `Jamie: Want a quick walkthrough of the ${friendlyLabel} version?`;
+  const header = `Vikram: Want a quick walkthrough of the ${friendlyLabel} version?`;
   const lines = [header];
 
   sentences.forEach((sentence, index) => {
-    const speaker = index % 2 === 0 ? "Alex" : "Jamie";
+    const speaker = index % 2 === 0 ? "Monika" : "Vikram";
     lines.push(`${speaker}: ${sentence}`);
   });
 
   lines.push(
-    `Jamie: That's the heart of the ${friendlyLabel} flow. Ready to ship it?`
+    `Vikram: That's the heart of the ${friendlyLabel} flow. Ready to ship it?`
   );
 
   return lines.join("\n");
@@ -116,10 +116,10 @@ You are Explainify, an AI host that turns documentation into an approachable pod
 Using the following documentation targeted for ${label ?? "this audience"}:
 ${content}
 
-Produce a short back-and-forth between Alex (curious learner) and Jamie (knowledgeable guide).
+Produce a short back-and-forth between Monika (curious learner) and Vikram (knowledgeable guide).
 Keep it under 12 lines, alternate speakers, and return plain text in the format:
-Alex: ...
-Jamie: ...
+Monika: ...
+Vikram: ...
 `;
 
   const response = await fetch(`${geminiEndpoint}?key=${apiKey}`, {
@@ -166,9 +166,9 @@ async function synthesizeSegment(
   apiKey: string
 ): Promise<Buffer> {
   const voiceId =
-    segment.speaker === "Alex"
-      ? process.env.ELEVENLABS_VOICE_ALEX ?? DEFAULT_VOICES.alex
-      : process.env.ELEVENLABS_VOICE_JAMIE ?? DEFAULT_VOICES.jamie;
+    segment.speaker === "Monika"
+      ? process.env.ELEVENLABS_VOICE_MONIKA ?? DEFAULT_VOICES.monika
+      : process.env.ELEVENLABS_VOICE_VIKRAM ?? DEFAULT_VOICES.vikram;
 
   const response = await fetch(`${elevenEndpoint}/${voiceId}`, {
     method: "POST",

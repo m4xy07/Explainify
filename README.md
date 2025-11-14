@@ -9,7 +9,7 @@ Explainify is a Raycast-inspired single-page app that ingests an API specificati
 - **Dual JSON inputs** — paste raw JSON or drag/drop a `.json` file with inline validation.
 - **Role-based focus** — Student, Full Stack Developer, Security Researcher, or a custom persona via glowing toggle buttons.
 - **AI generation pipeline** — POST to `/api/generate` (Google Gemini 1.5 Pro) for three doc versions + a dialogue script.
-- **Podcast summaries** — pick any of the three doc tracks and `/api/audio` will ask Gemini to craft an Alex/Jamie script, then render it through ElevenLabs + `ffmpeg` (or the bundled binary in Docker).
+- **Podcast summaries** — pick any of the three doc tracks and `/api/audio` will ask Gemini to craft a Monika/Vikram script, then render it through ElevenLabs + `ffmpeg` (or the bundled binary in Docker).
 - **Glassmorphic UI** — Tailwind, shadcn/ui primitives, Framer Motion micro-interactions, and Inter typeface for a Basedash/Raycast vibe.
 - **Bonus tooling** — syntax-highlighted editor, “Regenerate” flow, Markdown downloads, Sonner toasts, and mock fallbacks for static demos.
 
@@ -48,8 +48,8 @@ Create `.env.local` at the project root and add:
 ```
 GEMINI_API_KEY=ai-...
 ELEVENLABS_API_KEY=eleven-...
-ELEVENLABS_VOICE_ALEX=optional_voice_id
-ELEVENLABS_VOICE_JAMIE=optional_voice_id
+ELEVENLABS_VOICE_MONIKA=optional_voice_id
+ELEVENLABS_VOICE_VIKRAM=optional_voice_id
 ```
 
 - Leaving keys blank keeps the app in **mock mode** — `/api/generate` and `/api/audio` respond instantly with curated sample data and the included `public/audio/mock.mp3`.
