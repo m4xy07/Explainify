@@ -9,7 +9,11 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const publishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??
+  "pk_placeholder_clerk_publishable_key";
+const usingPlaceholderKey =
+  publishableKey === "pk_placeholder_clerk_publishable_key";
 
 export default function App({ Component, pageProps }: AppProps) {
   const appShell = (
@@ -30,13 +34,10 @@ export default function App({ Component, pageProps }: AppProps) {
     </div>
   );
 
-  if (!publishableKey) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not defined. Rendering without ClerkProvider."
-      );
-    }
-    return appShell;
+  if (usingPlaceholderKey && process.env.NODE_ENV !== "production") {
+    console.warn(
+      "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not defined; using placeholder key for build-time rendering."
+    );
   }
 
   return (
