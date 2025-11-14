@@ -43,8 +43,7 @@ export function ExplainCard({
   return (
     <motion.div
       layout
-      whileHover={{ translateY: -4 }}
-      className="h-full"
+      className="h-full font-inter"
       style={{
         filter: "drop-shadow(0px 15px 45px rgba(4, 3, 12, 0.85))",
       }}
@@ -77,12 +76,12 @@ export function ExplainCard({
               <DropdownMenu.Content
                 side="bottom"
                 align="end"
-                className="z-20 mt-2 w-48 rounded-2xl border border-white/10 bg-[#05060f]/95 p-1 shadow-2xl backdrop-blur-xl"
+                className="z-20 font-inter mt-2 w-48 rounded-lg border border-white/10 bg-[#05060f]/95 p-0 shadow-lg backdrop-blur-xl overflow-hidden"
               >
                 {downloadOptions.map((option) => (
                   <DropdownMenu.Item
                     key={option.format}
-                    className="flex cursor-pointer items-center rounded-xl px-3 py-2 text-xs font-medium text-white/80 outline-none transition hover:bg-white/10"
+                    className="flex cursor-pointer items-center rounded-none px-3 py-3 text-xs font-medium text-white/80 outline-none transition hover:bg-white/10"
                     onClick={() =>
                       downloadable &&
                       onDownload?.(title, downloadable, option.format)

@@ -25,7 +25,7 @@
   border-radius: 999px;
 }
 
-body {
+.app-body {
   min-height: 100vh;
   background-color: #040308;
   background-image: linear-gradient(
@@ -46,4 +46,60 @@ body {
   background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
   background-size: 18px 18px;
   opacity: 0.25;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rainbow-gradient {
+  background: linear-gradient(
+    90deg,
+    #ff0080,
+    #ff8c00,
+    #ffd700,
+    #00ff00,
+    #00bfff,
+    #0080ff,
+    #8000ff,
+    #ff0080
+  );
+  background-size: 200% 200%;
+  animation: rainbow 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+.cl-internal-1dauvpw{
+  display: none !important;
+}
+
+.cl-userButtonPopoverFooter{
+  display: none !important;
+}
+
+.font-inter{
+  font-family: 'Inter', sans-serif;
+}
+
+.cl-userButtonPopoverCard{
+  font-family: 'Inter', sans-serif;
+}
+
+.cl-modalContent{
+  font-family: 'Inter', sans-serif;
+}
+
+.cl-button{
+  font-family: 'Inter', sans-serif;
 }

@@ -40,10 +40,12 @@ export function JsonInput({ value, onChange, error }: JsonInputProps) {
     [onChange]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     accept: { "application/json": [".json"] },
     maxFiles: 1,
     onDrop,
+    noClick: true,
+    noKeyboard: true,
   });
 
   return (
@@ -67,10 +69,14 @@ export function JsonInput({ value, onChange, error }: JsonInputProps) {
                 Paste raw JSON, or drop an OpenAPI file below.
               </p>
             </div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">
+            <button
+              type="button"
+              onClick={open}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-xs text-white/60 hover:border-white/20 hover:bg-white/5 transition-all cursor-pointer"
+            >
               <Upload className="h-3.5 w-3.5" />
               JSON / .spec
-            </span>
+            </button>
           </div>
           <div className="rounded-2xl border border-white/10">
             <CodeMirror

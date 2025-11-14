@@ -17,6 +17,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+      },
       colors: {
         background: "#040308",
         foreground: "#f5f5f5",

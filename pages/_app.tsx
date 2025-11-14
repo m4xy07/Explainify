@@ -2,6 +2,14 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -10,6 +18,7 @@ const inter = Inter({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
+    <ClerkProvider>
     <div className={`${inter.variable} font-sans`}>
       <Component {...pageProps} />
       <Toaster
@@ -25,5 +34,6 @@ export default function App({ Component, pageProps }: AppProps) {
         }}
       />
     </div>
+    </ClerkProvider>
   );
 }
