@@ -27,7 +27,7 @@ const requestSchema = z.object({
 
 const elevenEndpoint = "https://api.elevenlabs.io/v1/text-to-speech";
 const geminiEndpoint =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
 const DEFAULT_VOICES = {
   monika: "ZUrEGyu8GFMwnHbvLhv2",
