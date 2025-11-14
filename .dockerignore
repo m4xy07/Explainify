@@ -7,5 +7,4 @@ Dockerfile
 out
 dist
 coverage
-.env
-.env.*
+
