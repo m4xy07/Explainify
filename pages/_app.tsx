@@ -2,23 +2,26 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs';
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+const FALLBACK_PUBLISHABLE_KEY =
+  "pk_live_Y2xlcmsuZXhwbGFpbmlmeS5kZXYk";
+
+const publishableKey =
+  FALLBACK_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY; 
+
+if (!publishableKey) {
+  throw new Error("Missing Clerk publishable key.");
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={publishableKey}>
     <div className={`${inter.variable} font-sans`}>
       <Component {...pageProps} />
       <Toaster
