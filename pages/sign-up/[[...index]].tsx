@@ -1,17 +1,12 @@
-import { SignUp } from "@clerk/nextjs";
+import { SignUp } from '@clerk/nextjs'
+import React from 'react'
 
 const SignUpPage = () => {
   return (
-    <main className="flex h-screen w-full items-center justify-center bg-black font-inter">
+    <main className='flex h-screen w-full items-center justify-center font-inter bg-black'>
       <SignUp />
-    </main>
-  );
-};
+    </main>    
+  )
+}
 
-export const getServerSideProps = async () => {
-  return {
-    props: {},
-  };
-};
-
-export default SignUpPage;
+export default SignUpPage
