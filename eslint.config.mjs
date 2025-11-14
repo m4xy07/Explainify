@@ -10,6 +10,16 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Files and globs to ignore (replacement for deprecated .eslintignore)
+  {
+    ignores: [
+      "pages/sign-in/**",
+      "pages/sign-up/**",
+      "pages/app/**",
+      "pages/_app.tsx",
+      "components/HeroAnimSource.tsx",
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
