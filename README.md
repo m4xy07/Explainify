@@ -10,6 +10,7 @@ Explainify is a Raycast-inspired single-page app that ingests an API specificati
 - **Role-based focus** — Student, Full Stack Developer, Security Researcher, or a custom persona via glowing toggle buttons.
 - **AI generation pipeline** — POST to `/api/generate` (Google Gemini 1.5 Pro) for three doc versions + a dialogue script.
 - **Podcast summaries** — pick any of the three doc tracks and `/api/audio` will ask Gemini to craft a Monika/Vikram script, then render it through ElevenLabs + `ffmpeg` (or the bundled binary in Docker).
+- **Roadmap flowcharts** � Generate roadmap.sh-style mind maps via `/api/flowchart`, visualised with React Flow to highlight prerequisites, integrations, and optimization paths for each persona.
 - **Glassmorphic UI** — Tailwind, shadcn/ui primitives, Framer Motion micro-interactions, and Inter typeface for a Basedash/Raycast vibe.
 - **Bonus tooling** — syntax-highlighted editor, “Regenerate” flow, Markdown downloads, Sonner toasts, and mock fallbacks for static demos.
 
@@ -62,7 +63,8 @@ ELEVENLABS_VOICE_VIKRAM=optional_voice_id
 | `pages/index.tsx` | Primary interface, wiring JSON input, role selector, doc cards, and audio controls |
 | `components/JsonInput.tsx` | Codemirror editor + drag/drop uploader |
 | `pages/api/generate.ts` | Google Gemini 1.5 Pro integration with mock fallback |
-| `pages/api/audio.ts` | Gemini-powered dialogue creation + ElevenLabs synthesis and ffmpeg concat |
+| `pages/api/audio.ts` | Gemini-powered Monika/Vikram dialogue + ElevenLabs synthesis and ffmpeg concat |
+| `pages/api/flowchart.ts` | Gemini roadmap generator feeding the React Flow mind map |
 | `public/audio/mock.mp3` | Sample podcast file used when ElevenLabs keys are absent |
 
 ## 🚀 Deploying

@@ -1,10 +1,11 @@
 import Head from "next/head";
+import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Radio, RefreshCcw, Wand2 } from "lucide-react";
+import { Radio, RefreshCcw, Wand2, Workflow } from "lucide-react";
 import { toast } from "sonner";
 
-import { ExplainCard } from "@/components/Card";
+import { ExplainCard, type DownloadFormat } from "@/components/Card";
 import { JsonInput } from "@/components/JsonInput";
 import { LoadingDots } from "@/components/LoadingDots";
 import { RoleSelector } from "@/components/RoleSelector";
@@ -12,9 +13,26 @@ import { Button } from "@/components/ui/button";
 import { mockApiSpec, mockDocResponse } from "@/lib/mock-data";
 import { cn, normalizeDocContent, stripFields } from "@/lib/utils";
 import type { AudienceRole, DocGenerationResponse } from "@/types/generation";
+import type { FlowchartResponse } from "@/types/flowchart";
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
+const FlowchartViewer = dynamic(
+  async () => {
+    const mod = await import("@/components/FlowchartViewer");
+    return mod.FlowchartViewer;
+  },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[420px] rounded-[32px] border border-white/10 bg-black/30 p-6 text-sm text-white/70">
+        Preparing flowchart…
+      </div>
+    ),
+  }
+);
+
 const cardAccents = ["#7b5cff", "#ff4d67", "#00a1ff"];
+type VariantKey = "version_1" | "version_2" | "version_3";
 
 export default function Home() {
   const [jsonInput, setJsonInput] = useState(
@@ -29,14 +47,17 @@ export default function Home() {
   const [audioPath, setAudioPath] = useState<string | null>(null);
   const [usedMock, setUsedMock] = useState(false);
   const [mockMessage, setMockMessage] = useState<string | null>(null);
-  const [audioVariant, setAudioVariant] = useState<
-    "version_1" | "version_2" | "version_3"
-  >("version_1");
+  const [audioVariant, setAudioVariant] = useState<VariantKey>("version_1");
   const [audioMessage, setAudioMessage] = useState<string | null>(null);
   const [audioUsedMock, setAudioUsedMock] = useState(false);
   const [lastAudioLabel, setLastAudioLabel] = useState("Beginner");
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [flowVariant, setFlowVariant] = useState<VariantKey>("version_1");
+  const [flowchart, setFlowchart] = useState<FlowchartResponse | null>(null);
+  const [flowLoading, setFlowLoading] = useState(false);
+  const [flowMessage, setFlowMessage] = useState<string | null>(null);
+  const [flowUsedMock, setFlowUsedMock] = useState(false);
 
   const activeAudience =
     selectedRole === "Other" ? customRole.trim() : selectedRole;
@@ -53,23 +74,23 @@ export default function Home() {
       },
       {
         key: "version_2" as const,
-        title: "Advanced",
+        title: "Developer",
         content: stripFields(normalizeDocContent(payload.version_2), hiddenFields),
         raw: payload.version_2,
       },
       {
         key: "version_3" as const,
-        title: "Expert",
+        title: activeAudience || "Role Focused",
         content: stripFields(normalizeDocContent(payload.version_3), hiddenFields),
         raw: payload.version_3,
       },
     ];
   }, [docs, activeAudience]);
 
-  const audioVariants = useMemo(
+  const variantOptions = useMemo(
     () => [
       { key: "version_1" as const, label: "Beginner" },
-      { key: "version_2" as const, label: "Advanced" },
+      { key: "version_2" as const, label: "Developer" },
       {
         key: "version_3" as const,
         label: activeAudience || "Role Focused",
@@ -89,16 +110,51 @@ export default function Home() {
     }
   };
 
-  const handleDownload = (title: string, content: string) => {
-    const blob = new Blob([content], { type: "text/markdown" });
+  const downloadBlob = (blob: Blob, fileName: string) => {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `${title.toLowerCase().replace(/\s+/g, "-")}.md`;
+    anchor.download = fileName;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDownload = async (
+    title: string,
+    content: string,
+    format: DownloadFormat
+  ) => {
+    const fileBase =
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/(^-|-$)/g, "") || "explainify-doc";
+
+    if (format === "pdf") {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      const margin = 48;
+      const usableWidth = doc.internal.pageSize.getWidth() - margin * 2;
+      const wrapped = doc.splitTextToSize(content, usableWidth);
+      let cursorY = margin;
+
+      wrapped.forEach((line: string) => {
+        if (cursorY > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage();
+          cursorY = margin;
+        }
+        doc.text(line, margin, cursorY);
+        cursorY += 16;
+      });
+
+      doc.save(`${fileBase}.pdf`);
+      return;
+    }
+
+    const mimeType = format === "md" ? "text/markdown" : "text/plain";
+    downloadBlob(new Blob([content], { type: mimeType }), `${fileBase}.${format}`);
   };
 
   const handleGenerate = async () => {
@@ -121,6 +177,10 @@ export default function Home() {
     setAudioMessage(null);
     setAudioUsedMock(false);
     setIsAudioPlaying(false);
+    setFlowVariant("version_1");
+    setFlowchart(null);
+    setFlowMessage(null);
+    setFlowUsedMock(false);
 
     try {
       const response = await fetch("/api/generate", {
@@ -167,7 +227,7 @@ export default function Home() {
   const handleGenerateAudio = async () => {
     const payload = docs ?? mockDocResponse;
 
-    const variantMeta = audioVariants.find(
+    const variantMeta = variantOptions.find(
       (option) => option.key === audioVariant
     );
 
@@ -241,6 +301,70 @@ export default function Home() {
       toast.error(message);
     } finally {
       setAudioLoading(false);
+    }
+  };
+
+  const handleGenerateFlow = async () => {
+    const payload = docs ?? mockDocResponse;
+    const variantMeta = variantOptions.find(
+      (option) => option.key === flowVariant
+    );
+
+    let variantRaw: unknown;
+    if (flowVariant === "version_1") variantRaw = payload.version_1;
+    else if (flowVariant === "version_2") variantRaw = payload.version_2;
+    else variantRaw = payload.version_3;
+
+    const normalized =
+      stripFields(
+        normalizeDocContent(variantRaw),
+        ["title", "audience", "audience_level"]
+      ) ?? normalizeDocContent(variantRaw);
+
+    if (!variantMeta || !normalized) {
+      toast.error("We need valid documentation to craft a roadmap.");
+      return;
+    }
+
+    setFlowLoading(true);
+    setFlowMessage("Sketching your Explainify roadmap…");
+    setFlowUsedMock(false);
+
+    try {
+      const response = await fetch("/api/flowchart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doc_content: normalized,
+          audience_focus: variantMeta.label,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Flowchart generation failed");
+      }
+
+      const payload = (await response.json()) as FlowchartResponse & {
+        usedMock?: boolean;
+        message?: string;
+      };
+
+      setFlowchart(payload);
+      setFlowUsedMock(Boolean(payload.usedMock));
+      setFlowMessage(
+        payload.message ??
+          (payload.usedMock
+            ? "Showing demo flow while the live generator recovers."
+            : "Flowchart ready.")
+      );
+    } catch (error) {
+      console.error(error);
+      setFlowchart(null);
+      setFlowUsedMock(true);
+      setFlowMessage("Unable to map the flow right now. Try again later.");
+      toast.error("Flowchart generation fell back to mock mode.");
+    } finally {
+      setFlowLoading(false);
     }
   };
 
@@ -370,7 +494,7 @@ export default function Home() {
                   Choose the narration target
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {audioVariants.map((option) => (
+                  {variantOptions.map((option) => (
                     <button
                       key={option.key}
                       type="button"
@@ -437,6 +561,68 @@ export default function Home() {
                       onEnded={() => setIsAudioPlaying(false)}
                     />
                   )}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 rounded-[32px] border border-white/10 bg-black/40 p-6 backdrop-blur-3xl">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-white/50">
+                  Flowchart focus
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {variantOptions.map((option) => (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => setFlowVariant(option.key)}
+                      className={cn(
+                        "rounded-2xl border border-white/10 px-4 py-2 text-sm text-white/70 transition-all",
+                        flowVariant === option.key
+                          ? "bg-white/20 text-white shadow-glow"
+                          : "hover:bg-white/10"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <Button
+                  variant="secondary"
+                  className="gap-2 rounded-2xl border border-white/10 bg-white/10"
+                  onClick={handleGenerateFlow}
+                  disabled={flowLoading}
+                >
+                  {flowLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Workflow className="h-4 w-4 animate-spin" />
+                      Mapping your Explainify flow…
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      🧭 Generate Flowchart
+                    </span>
+                  )}
+                </Button>
+                <div className="flex-1">
+                  {flowMessage && (
+                    <p className="text-sm text-white/70">
+                      {flowMessage}{" "}
+                      {flowUsedMock && (
+                        <span className="text-xs text-white/50">
+                          (Demo roadmap shown)
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {flowchart && (
+                <div className="space-y-3">
+                  <p className="text-sm text-white/80">{flowchart.summary}</p>
+                  <FlowchartViewer data={flowchart} />
                 </div>
               )}
             </div>
