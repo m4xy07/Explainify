@@ -2,7 +2,7 @@
 
 # Explainify
 
-Explainify is a Raycast-inspired single-page app that ingests an API specification, lets you target a specific audience, and generates three tailored documentation tracks plus a podcast-style audio summary.
+Explainify transforms complex API schemas into crystal-clear documentation and engaging podcast summaries - tailored perfectly for any audience.
 
 ## âœ¨ Feature Highlights
 
