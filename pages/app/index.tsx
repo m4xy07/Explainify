@@ -2,7 +2,13 @@ import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Radio, RefreshCcw, Wand2, Workflow } from "lucide-react";
+import {
+  Download,
+  Radio,
+  RefreshCcw,
+  Wand2,
+  Workflow,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { ExplainCard, type DownloadFormat } from "@/components/Card";
@@ -14,7 +20,13 @@ import { mockApiSpec, mockDocResponse } from "@/lib/mock-data";
 import { cn, normalizeDocContent, stripFields } from "@/lib/utils";
 import type { AudienceRole, DocGenerationResponse } from "@/types/generation";
 import type { FlowchartResponse } from "@/types/flowchart";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
 
 const FlowchartViewer = dynamic(
   async () => {
@@ -58,6 +70,12 @@ export default function Home() {
   const [flowLoading, setFlowLoading] = useState(false);
   const [flowMessage, setFlowMessage] = useState<string | null>(null);
   const [flowUsedMock, setFlowUsedMock] = useState(false);
+  const flowchartRef = useRef<HTMLDivElement | null>(null);
+  const [questionInput, setQuestionInput] = useState("");
+  const [questionAnswer, setQuestionAnswer] = useState<string | null>(null);
+  const [questionFollowUps, setQuestionFollowUps] = useState<string[]>([]);
+  const [questionLoading, setQuestionLoading] = useState(false);
+  const [questionUsedMock, setQuestionUsedMock] = useState(false);
 
   const activeAudience =
     selectedRole === "Other" ? customRole.trim() : selectedRole;
@@ -69,19 +87,28 @@ export default function Home() {
       {
         key: "version_1" as const,
         title: "Beginner",
-        content: stripFields(normalizeDocContent(payload.version_1), hiddenFields),
+        content: stripFields(
+          normalizeDocContent(payload.version_1),
+          hiddenFields
+        ),
         raw: payload.version_1,
       },
       {
         key: "version_2" as const,
-        title: "Developer",
-        content: stripFields(normalizeDocContent(payload.version_2), hiddenFields),
+        title: "Advanced",
+        content: stripFields(
+          normalizeDocContent(payload.version_2),
+          hiddenFields
+        ),
         raw: payload.version_2,
       },
       {
         key: "version_3" as const,
-        title: activeAudience || "Role Focused",
-        content: stripFields(normalizeDocContent(payload.version_3), hiddenFields),
+        title: "Expert",
+        content: stripFields(
+          normalizeDocContent(payload.version_3),
+          hiddenFields
+        ),
         raw: payload.version_3,
       },
     ];
@@ -90,10 +117,10 @@ export default function Home() {
   const variantOptions = useMemo(
     () => [
       { key: "version_1" as const, label: "Beginner" },
-      { key: "version_2" as const, label: "Developer" },
+      { key: "version_2" as const, label: "Advanced" },
       {
         key: "version_3" as const,
-        label: activeAudience || "Role Focused",
+        label: "Expert",
       },
     ],
     [activeAudience]
@@ -154,7 +181,10 @@ export default function Home() {
     }
 
     const mimeType = format === "md" ? "text/markdown" : "text/plain";
-    downloadBlob(new Blob([content], { type: mimeType }), `${fileBase}.${format}`);
+    downloadBlob(
+      new Blob([content], { type: mimeType }),
+      `${fileBase}.${format}`
+    );
   };
 
   const handleGenerate = async () => {
@@ -316,10 +346,11 @@ export default function Home() {
     else variantRaw = payload.version_3;
 
     const normalized =
-      stripFields(
-        normalizeDocContent(variantRaw),
-        ["title", "audience", "audience_level"]
-      ) ?? normalizeDocContent(variantRaw);
+      stripFields(normalizeDocContent(variantRaw), [
+        "title",
+        "audience",
+        "audience_level",
+      ]) ?? normalizeDocContent(variantRaw);
 
     if (!variantMeta || !normalized) {
       toast.error("We need valid documentation to craft a roadmap.");
@@ -367,6 +398,124 @@ export default function Home() {
       setFlowLoading(false);
     }
   };
+  const handleAskQuestion = async () => {
+    const trimmed = questionInput.trim();
+    if (!trimmed) {
+      toast.error("Type a question to get started.");
+      return;
+    }
+
+    const payload = docs ?? mockDocResponse;
+    const context =
+      stripFields(
+        normalizeDocContent(payload[flowVariant] ?? payload.version_1),
+        ["title", "audience", "audience_level"]
+      ) ?? normalizeDocContent(payload[flowVariant] ?? payload.version_1) ?? "";
+
+    setQuestionLoading(true);
+    setQuestionUsedMock(false);
+    setQuestionAnswer(null);
+    setQuestionFollowUps([]);
+
+    try {
+      const response = await fetch("/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: trimmed,
+          context,
+          persona: variantOptions.find((v) => v.key === flowVariant)?.label,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch the answer.");
+      }
+
+      const payload = (await response.json()) as {
+        answer: string;
+        followUps: string[];
+        usedMock?: boolean;
+        message?: string;
+      };
+
+      setQuestionAnswer(payload.answer);
+      setQuestionFollowUps(payload.followUps);
+      setQuestionUsedMock(Boolean(payload.usedMock));
+      if (payload.message) {
+        setFlowMessage(payload.message);
+      }
+    } catch (error) {
+      console.error(error);
+      setQuestionAnswer(
+        "Unable to fetch an answer right now. Try again later."
+      );
+      setQuestionFollowUps([
+        "Which endpoints or schemas does this question depend on?",
+        "Are there auth or rate-limit considerations?",
+        "What examples or test cases can validate the answer?",
+      ]);
+      setQuestionUsedMock(true);
+    } finally {
+      setQuestionLoading(false);
+    }
+  };
+
+  const handleDownloadFlowchart = async (format: "png" | "pdf") => {
+    if (!flowchart || !flowchartRef.current) {
+      toast.error(
+        "Generate the flowchart first before downloading it as an image."
+      );
+      return;
+    }
+
+    try {
+      const htmlToImage = await import("html-to-image");
+      const dataUrl = await htmlToImage.toPng(flowchartRef.current, {
+        cacheBust: true,
+      });
+
+      if (format === "png") {
+        downloadBlob(
+          await (async () => {
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            return blob;
+          })(),
+          `explainify-flow-${flowVariant}.png`
+        );
+        return;
+      }
+
+      const { jsPDF } = await import("jspdf");
+      const pdf = new jsPDF("l", "pt", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+      const scale = Math.min(
+        (pageWidth - 40) / img.width,
+        (pageHeight - 40) / img.height
+      );
+      const w = img.width * scale;
+      const h = img.height * scale;
+      pdf.addImage(
+        img,
+        "PNG",
+        (pageWidth - w) / 2,
+        (pageHeight - h) / 2,
+        w,
+        h
+      );
+      pdf.save(`explainify-flow-${flowVariant}.pdf`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to download the flowchart right now.");
+    }
+  };
 
   return (
     <>
@@ -378,41 +527,35 @@ export default function Home() {
         />
       </Head>
       <main className="relative min-h-screen overflow-hidden px-4 py-12 md:px-6 app-body">
-        <header className='absolute top-0 left-0 right-0 z-20 px-6 py-4'>
-        <div className='max-w-7xl mx-auto flex items-center justify-between'>
-          <div className='text-2xl font-semibold'>
-            <span>Explainify.</span>
+        <header className="absolute top-0 left-0 right-0 z-20 px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="text-2xl font-semibold">
+              <span>Explainify.</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <SignedOut>
+                <SignUpButton>
+                  <button className="group text-[14px] px-4 py-[6px] bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl flex flex-row gap-1">
+                    Register
+                    <span className="-mt-[1px] transition-transform duration-200 group-hover:translate-x-[2px]">
+                      →
+                    </span>
+                  </button>
+                </SignUpButton>
+                <SignInButton>
+                  <button className="text-[14px] px-4 py-[6px]  text-white font-medium transition-all duration-200">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <SignedOut>
-              <SignUpButton>
-                <button className='group text-[14px] px-4 py-[6px] bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl flex flex-row gap-1'>
-              Register
-              <span className='-mt-[1px] transition-transform duration-200 group-hover:translate-x-[2px]'>
-              →
-            </span>
-            </button>
-              </SignUpButton>
-              <SignInButton>
-                <button className='text-[14px] px-4 py-[6px]  text-white font-medium transition-all duration-200'>
-                  Sign In
-                </button>
-              </SignInButton>
-              
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            
-            
-            
-          </div>
-        </div>
-      </header>
+        </header>
         <div className="absolute inset-0 -z-10 opacity-50 blur-3xl" />
         <div className="container space-y-12 px-0 py-12">
-        
-
           <div className="grid gap-8 ">
             <section className="space-y-8 rounded-[40px] border border-white/10 bg-black/30 p-6 shadow-2xl backdrop-blur-3xl md:p-8">
               <JsonInput
@@ -463,8 +606,6 @@ export default function Home() {
                 </div>
               )}
             </section>
-
-            
           </div>
 
           <section className="space-y-6">
@@ -606,6 +747,28 @@ export default function Home() {
                     </span>
                   )}
                 </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs text-white/80"
+                    disabled={!flowchart}
+                    onClick={() => handleDownloadFlowchart("png")}
+                  >
+                    <Download className="h-4 w-4" />
+                    PNG
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs text-white/80"
+                    disabled={!flowchart}
+                    onClick={() => handleDownloadFlowchart("pdf")}
+                  >
+                    <Download className="h-4 w-4" />
+                    PDF
+                  </Button>
+                </div>
                 <div className="flex-1">
                   {flowMessage && (
                     <p className="text-sm text-white/70">
@@ -622,7 +785,69 @@ export default function Home() {
               {flowchart && (
                 <div className="space-y-3">
                   <p className="text-sm text-white/80">{flowchart.summary}</p>
-                  <FlowchartViewer data={flowchart} />
+                  <FlowchartViewer
+                    containerRef={flowchartRef}
+                    data={flowchart}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 rounded-[32px] border border-white/10 bg-black/40 p-6 backdrop-blur-3xl">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-white/50">
+                  Questions & Queries
+                </p>
+                <p className="text-sm text-white/65">
+                  Ask Explainify anything about this API or flow.
+                </p>
+              </div>
+              <textarea
+                className="w-full rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+                rows={4}
+                value={questionInput}
+                onChange={(event) => setQuestionInput(event.target.value)}
+                placeholder="e.g. What is the best way to secure the webhook callback?"
+              />
+              <div className="flex flex-wrap items-center gap-4">
+                <Button
+                  variant="secondary"
+                  className="gap-2 rounded-2xl border border-white/10 bg-white/10"
+                  onClick={handleAskQuestion}
+                  disabled={questionLoading}
+                >
+                  {questionLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Wand2 className="h-4 w-4 animate-spin" />
+                      Thinking through an answer…
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      ❓ Ask Explainify
+                    </span>
+                  )}
+                </Button>
+                {questionUsedMock && (
+                  <p className="text-xs text-white/50">
+                    Running in mock mode while the answerer catches up.
+                  </p>
+                )}
+              </div>
+              {questionAnswer && (
+                <div className="space-y-4 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white/80">
+                  <p>{questionAnswer}</p>
+                  {questionFollowUps.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-white/50">
+                        Next questions to explore
+                      </p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-white/80">
+                        {questionFollowUps.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

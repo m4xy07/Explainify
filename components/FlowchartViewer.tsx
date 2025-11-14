@@ -11,9 +11,10 @@ import type { FlowchartResponse } from "@/types/flowchart";
 
 interface FlowchartViewerProps {
   data: FlowchartResponse;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function FlowchartViewer({ data }: FlowchartViewerProps) {
+export function FlowchartViewer({ data, containerRef }: FlowchartViewerProps) {
   const nodes = useMemo<Node[]>(
     () =>
       data.nodes.map((node, index) => ({
@@ -65,7 +66,10 @@ export function FlowchartViewer({ data }: FlowchartViewerProps) {
   );
 
   return (
-    <div className="h-[420px] w-full overflow-hidden rounded-[32px] border border-white/10 bg-black/30">
+    <div
+      ref={containerRef}
+      className="h-[420px] w-full overflow-hidden rounded-[32px] border border-white/10 bg-black/30"
+    >
       <ReactFlow nodes={nodes} edges={edges} fitView>
         <Background color="rgba(255,255,255,0.07)" gap={16} />
         <Controls />

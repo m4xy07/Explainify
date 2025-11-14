@@ -117,7 +117,7 @@ Using the following documentation targeted for ${label ?? "this audience"}:
 ${content}
 
 Produce a short back-and-forth between Monika (curious learner) and Vikram (knowledgeable guide).
-Keep it under 12 lines, alternate speakers, and return plain text in the format:
+Keep it under 12-16 lines, alternate speakers, and return plain text in the format:
 Monika: ...
 Vikram: ...
 `;
