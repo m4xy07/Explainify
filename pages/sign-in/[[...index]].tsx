@@ -1,12 +1,17 @@
-import { SignIn } from '@clerk/nextjs'
-import React from 'react'
+import { SignIn } from "@clerk/nextjs";
 
 const SignInPage = () => {
   return (
-    <main className='flex h-screen w-full items-center justify-center font-inter bg-black'>
+    <main className="flex h-screen w-full items-center justify-center bg-black font-inter">
       <SignIn />
-    </main>    
-  )
-}
+    </main>
+  );
+};
 
-export default SignInPage
+export const getServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
+
+export default SignInPage;
