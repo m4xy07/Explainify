@@ -11,9 +11,9 @@ const inter = Inter({
 
 const publishableKey =
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??
-  "pk_placeholder_clerk_publishable_key";
+  "pk_live_Y2xlcmsuZXhwbGFpbmlmeS5kZXYk";
 const usingPlaceholderKey =
-  publishableKey === "pk_placeholder_clerk_publishable_key";
+  publishableKey === "pk_live_Y2xlcmsuZXhwbGFpbmlmeS5kZXYk";
 
 export default function App({ Component, pageProps }: AppProps) {
   const appShell = (
