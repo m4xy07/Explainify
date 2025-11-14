@@ -1,3 +1,5 @@
+![Explainify banner](public/file.svg)
+
 # Explainify
 
 Explainify is a Raycast-inspired single-page app that ingests an API specification, lets you target a specific audience, and generates three tailored documentation tracks plus a podcast-style audio summary.
@@ -76,5 +78,10 @@ ELEVENLABS_VOICE_JAMIE=optional_voice_id
 
   The image installs dependencies, builds the Next.js app, and starts it on port 3000 so it behaves the same as `npm run start`.
 
+## ✅ Next Steps
+
+1. Drop your API keys into `.env.local`.
+2. Customize the mock spec in `lib/mock-data.ts` to match your product.
+3. Hook the `/api` routes up to your preferred AI providers or swap in serverless functions if you’re targeting a static host.
 
 Turning complexity into clarity is now just one command away. Enjoy!

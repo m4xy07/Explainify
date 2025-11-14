@@ -13,7 +13,7 @@ const bodySchema = z.object({
 });
 
 const geminiEndpoint =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
 async function callGemini({
   api_data,
@@ -25,17 +25,35 @@ Given the following API data:
 ${JSON.stringify(api_data, null, 2)}
 
 And the target audience: ${audience_focus}
-The Information should be according to the audience's level of expertise and field. If student then focus on clarity and simplicity. If developer, include technical details and practical examples. If expert, emphasize advanced concepts and nuanced insights., if security researcher then focus on vulnerabilities, threat models, and mitigation strategies. If developer advocate then focus on best practices, integration tips, and real-world applications.
 
-Generate 3 documentation outputs:
-1. Beginner-friendly documentation
-2. Advanced-level detailed documentation
-3. Expert-specific documentation
+Write content according to the audience’s level:
+- Student → clarity and simplicity  
+- Developer → technical depth and practical examples  
+- Security researcher → vulnerabilities, threat modeling, mitigations  
+- Developer advocate → best practices, integration tips, real-world usage  
+- Expert → advanced concepts and nuanced insights  
 
-Then create a short podcast-style conversation between Alex (the learner) and Jamie (the expert) explaining this API in a simple, conversational tone.
+Generate **exactly 4 clean text outputs**:
 
-Return all outputs as JSON with these keys: THe json should only have content field with the content no other keys
-{ "version_1", "version_2", "version_3", "dialogue_script" }
+1. version_1 → Beginner-friendly documentation  
+2. version_2 → Advanced-level documentation  
+3. version_3 → Expert-specific documentation  
+4. dialogue_script → A short podcast-style conversation between Alex (learner) and Jamie (expert) explaining the API in a simple, conversational tone  
+
+Return ONLY a JSON object in this format:
+
+{
+  "version_1": "<clean text only>",
+  "version_2": "<clean text only>",
+  "version_3": "<clean text only>",
+  "dialogue_script": "<clean text only>"
+}
+
+Important rules:
+- Do NOT include titles, metadata, headings, JSON schemas, or descriptions outside of the text fields.
+- Each field must contain **clean readable documentation text only**.
+- No extra keys or wrapper objects.
+
 `;
 
   const apiKey = process.env.GEMINI_API_KEY;

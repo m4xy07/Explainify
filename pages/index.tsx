@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Radio, RefreshCcw, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ExplainCard } from "@/components/Card";
+import { ExplainCard, type DownloadFormat } from "@/components/Card";
 import { JsonInput } from "@/components/JsonInput";
 import { LoadingDots } from "@/components/LoadingDots";
 import { RoleSelector } from "@/components/RoleSelector";
@@ -88,16 +88,51 @@ export default function Home() {
     }
   };
 
-  const handleDownload = (title: string, content: string) => {
-    const blob = new Blob([content], { type: "text/markdown" });
+  const downloadBlob = (blob: Blob, fileName: string) => {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `${title.toLowerCase().replace(/\s+/g, "-")}.md`;
+    anchor.download = fileName;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDownload = async (
+    title: string,
+    content: string,
+    format: DownloadFormat
+  ) => {
+    const fileBase =
+      title.toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/(^-|-$)/g, "") ||
+      "explainify-doc";
+
+    if (format === "pdf") {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      const margin = 48;
+      const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+      const lineHeight = 16;
+      const lines = doc.splitTextToSize(content, maxWidth) as string[];
+      let cursorY = margin;
+
+      lines.forEach((line: string) => {
+        if (cursorY > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage();
+          cursorY = margin;
+        }
+        doc.text(line, margin, cursorY);
+        cursorY += lineHeight;
+      });
+
+      doc.save(`${fileBase}.pdf`);
+      return;
+    }
+
+    const mimeType = format === "md" ? "text/markdown" : "text/plain";
+    const blob = new Blob([content], { type: mimeType });
+    downloadBlob(blob, `${fileBase}.${format}`);
   };
 
   const handleGenerate = async () => {

@@ -1,6 +1,7 @@
-import { Download } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +12,14 @@ import {
 } from "@/components/ui/card";
 import { cn, normalizeDocContent } from "@/lib/utils";
 
+export type DownloadFormat = "md" | "txt" | "pdf";
+
 interface ExplainCardProps {
   title: string;
   content?: string;
   rawContent?: unknown;
   accent?: string;
-  onDownload?: (title: string, content: string) => void;
+  onDownload?: (title: string, content: string, format: DownloadFormat) => void;
 }
 
 export function ExplainCard({
@@ -31,6 +34,11 @@ export function ExplainCard({
     () => normalizeDocContent(rawContent ?? content),
     [rawContent, content]
   );
+  const downloadOptions: Array<{ label: string; format: DownloadFormat }> = [
+    { label: "Markdown (.md)", format: "md" },
+    { label: "Plain text (.txt)", format: "txt" },
+    { label: "PDF (.pdf)", format: "pdf" },
+  ];
 
   return (
     <motion.div
@@ -54,16 +62,38 @@ export function ExplainCard({
               Tailored narrative
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs font-semibold"
-            disabled={!downloadable}
-            onClick={() => downloadable && onDownload?.(title, downloadable)}
-          >
-            <Download className="h-4 w-4" />
-            .md
-          </Button>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild disabled={!downloadable}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 rounded-2xl border border-white/10 bg-white/5 text-xs font-semibold disabled:opacity-50"
+              >
+                Download
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                side="bottom"
+                align="end"
+                className="z-20 mt-2 w-48 rounded-2xl border border-white/10 bg-[#05060f]/95 p-1 shadow-2xl backdrop-blur-xl"
+              >
+                {downloadOptions.map((option) => (
+                  <DropdownMenu.Item
+                    key={option.format}
+                    className="flex cursor-pointer items-center rounded-xl px-3 py-2 text-xs font-medium text-white/80 outline-none transition hover:bg-white/10"
+                    onClick={() =>
+                      downloadable &&
+                      onDownload?.(title, downloadable, option.format)
+                    }
+                  >
+                    {option.label}
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden">
           <div
