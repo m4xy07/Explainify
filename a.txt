@@ -1,0 +1,303 @@
+=== 1. Resume (HTML + CSS) ===
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Resume</title>
+  <style>
+    body{font-family: Arial; max-width:800px;margin:20px auto;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0}
+    .section{margin-top:16px}
+    .row{display:flex;gap:20px}
+    .col{flex:1}
+    ul{margin:6px 0 0 18px}
+    .badge{background:#eee;padding:2px 8px;border-radius:12px;font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Aman Shaikh</h1><div>aman@example.com • +91 99999 99999</div></div>
+    <div class="badge">Frontend Dev</div>
+  </header>
+  <div class="section">
+    <h3>Summary</h3>
+    <p>Simple, clean frontend developer experience building responsive web UI.</p>
+  </div>
+  <div class="section row">
+    <div class="col">
+      <h3>Experience</h3>
+      <p><strong>Frontend Intern</strong> — Company</p>
+      <ul><li>Built pages with HTML/CSS/JS</li></ul>
+    </div>
+    <div class="col">
+      <h3>Education</h3>
+      <p>B.Tech in Computer Engineering</p>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Skills</h3>
+    <span class="badge">HTML</span> <span class="badge">CSS</span> <span class="badge">JS</span> <span class="badge">AngularJS</span>
+  </div>
+</body>
+</html>
+
+=== 2. Login Page ===
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>body{display:flex;min-height:100vh;align-items:center;justify-content:center;background:#f8f9fa}</style>
+</head>
+<body>
+  <div class="card p-4 shadow" style="width:360px">
+    <h4 class="mb-3">Login</h4>
+    <form id="loginForm">
+      <div class="mb-2"><label class="form-label">Email</label><input type="email" class="form-control" id="email" required></div>
+      <div class="mb-2"><label class="form-label">Password</label><input type="password" class="form-control" id="password" required></div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><input id="remember" type="checkbox"> <label for="remember">Remember Me</label></div>
+        <a href="#" class="small">Forgot Password?</a>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Sign In</button>
+    </form>
+    <div id="msg" class="mt-2 text-success" style="display:none">Logged in (demo)</div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      if(email === 'user@example.com' && pass === 'password'){
+        document.getElementById('msg').style.display = 'block';
+      } else {
+        alert('Invalid credentials');
+      }
+    });
+  </script>
+</body>
+</html>
+
+=== 3. Feedback Form ===
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Feedback</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{padding:20px;background:#f7f7f7}</style></head>
+<body>
+<div class="container">
+<h3>Feedback Form</h3>
+<form id="feedbackForm" class="bg-white p-4 shadow rounded" style="max-width:700px">
+<div class="mb-2"><label>Name</label><input class="form-control" id="name"></div>
+<div class="mb-2"><label>Email</label><input type="email" class="form-control" id="email" required></div>
+<div class="mb-2"><label>Subject</label><input class="form-control" id="subject"></div>
+<div class="mb-2"><label>Comments</label><textarea class="form-control" id="comments" rows="4"></textarea></div>
+<div class="mb-3">
+<label>Rating</label>
+<select class="form-select" id="rating"><option>5 - Excellent</option><option>4 - Good</option><option>3 - Okay</option><option>2</option><option>1</option></select>
+</div>
+<button class="btn btn-primary" type="submit">Submit</button>
+</form>
+<pre id="out"></pre>
+</div>
+<script>
+document.getElementById('feedbackForm').addEventListener('submit', e=>{
+e.preventDefault();
+const data={
+name: name.value,
+email: email.value,
+subject: subject.value,
+comments: comments.value,
+rating: rating.value
+};
+out.textContent = JSON.stringify(data,null,2);
+});
+</script>
+</body>
+</html>
+
+=== 4. AJAX (XMLHttpRequest) ===
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Ajax Demo</title></head>
+<body>
+<h3>AJAX Demo</h3>
+<button id="load">Load JSON</button>
+<pre id="out"></pre>
+<script>
+load.onclick=()=>{
+const xhr=new XMLHttpRequest();
+xhr.open('GET','https://jsonplaceholder.typicode.com/todos/1');
+xhr.onload=()=> out.textContent=xhr.responseText;
+xhr.send();
+};
+</script>
+</body>
+</html>
+
+=== 5. Form Validation ===
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Validation</title></head>
+<body>
+<form id="f">
+<label>Email: <input id="email" type="email" required></label><br>
+<label>Age: <input id="age" type="number" required></label><br>
+<button>Submit</button>
+</form>
+<script>
+f.onsubmit=e=>{
+e.preventDefault();
+if(age.value<18) alert('Must be 18+');
+else alert('Valid');
+}
+</script>
+</body>
+</html>
+
+=== 6. Triangle Area + GitHub Steps ===
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Triangle</title></head>
+<body>
+<input id="b" type="number"> <input id="h" type="number">
+<button onclick="calc()">Area</button>
+<div id="ans"></div>
+<script>
+function calc(){ ans.textContent="Area="+(0.5*b.value*h.value); }
+</script>
+</body>
+</html>
+GitHub:
+git init
+git add .
+git commit -m "first"
+git remote add origin <url>
+git push -u origin main
+
+=== 7. Addition + Docker Steps ===
+<!doctype html>
+<html>
+<body>
+<input id="a"><input id="b"><button onclick="sum()">Add</button>
+<div id="r"></div>
+<script>
+function sum(){ r.textContent=Number(a.value)+Number(b.value); }
+</script>
+</body>
+</html>
+Docker:
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+
+=== 8. Moving Train ===
+<!doctype html>
+<html>
+<head>
+<style>
+#track{height:120px;border:1px solid #ccc;position:relative;overflow:hidden}
+.train{width:180px;height:60px;background:red;position:absolute;left:-200px;top:30px;transition:transform 4s linear}
+.moving{transform:translateX(110%)}
+</style>
+</head>
+<body>
+<div id="track"><div id="t" class="train">TRAIN</div></div>
+<button onclick="t.classList.add('moving')">Start</button>
+<button onclick="t.classList.remove('moving')">Stop</button>
+</body>
+</html>
+
+=== 9. AngularJS Two-way Binding ===
+<!doctype html>
+<html ng-app>
+<head><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script></head>
+<body>
+<input ng-model="msg">
+<p>{{msg}}</p>
+</body>
+</html>
+
+=== 10. AngularJS Controller Welcome ===
+<!doctype html>
+<html ng-app="app">
+<head><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script></head>
+<body ng-controller="c">
+<h3>{{welcome}}</h3>
+<script>
+angular.module('app',[]).controller('c',s=>s.welcome="Welcome!");
+</script>
+</body>
+</html>
+
+=== 11. AngularJS Student Table ===
+<!doctype html>
+<html ng-app="app">
+<head><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script></head>
+<body ng-controller="c">
+<table border="1">
+<tr><th>Name</th><th>Roll</th><th>Subs</th></tr>
+<tr ng-repeat="s in students">
+<td>{{s.name}}</td><td>{{s.roll}}</td><td>{{s.subjects}}</td>
+</tr>
+</table>
+<script>
+angular.module('app',[]).controller('c',s=>{
+s.students=[{name:'Aman',roll:1,subjects:'Math,CS'}];
+});
+</script>
+</body>
+</html>
+
+=== 12. AngularJS Expressions ===
+<!doctype html>
+<html ng-app ng-init="p={name:'A',age:20}; nums=[1,2,3]">
+<head><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script></head>
+<body>
+{{p.name}} {{p.age+1}} {{nums[0]+nums[1]}}
+</body>
+</html>
+
+=== 13. Node Static Server ===
+const express=require('express');
+const app=express();
+app.use(express.static('public'));
+app.listen(3000);
+
+=== 14. Factorial + AWS Steps ===
+<!doctype html>
+<html>
+<body>
+<input id="n"><button onclick="f()">Fact</button><div id="o"></div>
+<script>
+function fact(x){return x<=1?1:x*fact(x-1);}
+function f(){o.textContent=fact(parseInt(n.value));}
+</script>
+</body>
+</html>
+AWS:
+eb init
+eb create
+eb deploy
+
+=== 15. Contact Form ===
+<!doctype html>
+<html>
+<head><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body>
+<form id="c">
+<input class="form-control" id="name">
+<input class="form-control" id="email">
+<input class="form-control" id="subject">
+<textarea class="form-control" id="message"></textarea>
+<button>Send</button>
+</form>
+<script>
+c.onsubmit=e=>{
+e.preventDefault();
+alert("Sent");
+}
+</script>
+</body>
+</html>
